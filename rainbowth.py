@@ -36,7 +36,8 @@ class ViewInfo:
             for depth, regions in enumerate(depths):
                 visible_regions = self.prepared_regions[self.keys[depth]]
                 for region in regions:
-                    visible_regions.remove(region)
+                    if region in visible_regions: # FIXME: should be always true
+                        visible_regions.remove(region)
                 self.prepared_regions[self.keys_lineHighlight[depth]] += regions
 
     def highlight(self, view):
@@ -46,7 +47,7 @@ class ViewInfo:
                              scope=key, flags=sublime.DRAW_NO_OUTLINE)
 
 class Rainbowth(sublime_plugin.EventListener):
-    lispy_languages = ['lisp', 'scheme', 'clojure', 'clojurescript']
+    lispy_languages = ['lisp', 'scheme', 'clojure', 'clojurescript', 'hylang']
 
     cache_file_path = os.path.join(sublime.cache_path(), 'Rainbowth', 'Rainbowth.cache')
     if not os.path.exists(os.path.dirname(cache_file_path)):
@@ -208,6 +209,9 @@ class Rainbowth(sublime_plugin.EventListener):
 
     def on_selection_modified(self, view):
         if not view.settings().get('rainbowth.lispy'):
+            return
+
+        if not view.id() in self.view_infos:
             return
 
         if len(view.sel()) == 1 and view.sel()[0].a == view.sel()[0].b:
