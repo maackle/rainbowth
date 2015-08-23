@@ -1,4 +1,4 @@
-import sublime, sublime_plugin, re, json, os
+import codecs, sublime, sublime_plugin, re, json, os
 from collections import defaultdict
 
 class ViewInfo:
@@ -147,7 +147,7 @@ class Rainbowth(sublime_plugin.EventListener):
             return colors
 
         # Not updated; do it!
-        with open(scheme_path, 'r') as scheme_file:
+        with codecs.open(scheme_path, 'r', 'utf-8') as scheme_file:
             scheme_xml = scheme_file.read()
 
         background = self.get_setting(scheme_xml, 'background')
@@ -161,7 +161,7 @@ class Rainbowth(sublime_plugin.EventListener):
                     format(self.colors_to_xml(colors, background, lineHighlight))
         scheme_xml = re.sub('</array>', rainbowth + '\n\t</array>', scheme_xml)
 
-        with open(scheme_path, 'w') as scheme_file:
+        with codecs.open(scheme_path, 'w', 'utf-8') as scheme_file:
             scheme_file.write(scheme_xml)
 
         self.cache[scheme_name] = colors
@@ -210,7 +210,6 @@ class Rainbowth(sublime_plugin.EventListener):
     def on_selection_modified(self, view):
         if not view.settings().get('rainbowth.lispy'):
             return
-        colors = view.settings().get('rainbowth.colors')
 
         if len(view.sel()) == 1 and view.sel()[0].a == view.sel()[0].b:
             highlighted_line, _ = view.rowcol(view.sel()[0].a)
